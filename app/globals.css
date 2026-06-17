@@ -642,6 +642,82 @@ input[type="checkbox"] {
   gap: 14px;
 }
 
+.image-editor {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 250, 242, 0.48);
+}
+
+.image-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.image-editor-head span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.image-editor-head p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 0 16px;
+  color: var(--white);
+  background: var(--ink);
+  cursor: pointer;
+}
+
+.upload-button input {
+  display: none;
+}
+
+.image-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-admin-card {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-deep);
+}
+
+.image-admin-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-admin-card button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 34px;
+  width: 34px;
+  background: rgba(255, 250, 242, 0.92);
+}
+
 @media (max-width: 1000px) {
   .hero,
   .product-shell,
@@ -688,7 +764,8 @@ input[type="checkbox"] {
 
   .watch-grid,
   .gallery,
-  .form-grid {
+  .form-grid,
+  .image-admin-grid {
     grid-template-columns: 1fr;
   }
 

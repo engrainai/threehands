@@ -18,11 +18,12 @@ Visit `/admin` to create and edit listings. Each listing includes:
 - title, slug, brand, year, price
 - quantity and sold-out status
 - featured placement
-- image URLs
+- uploaded product images
 - reference, movement, dimensions, service, box/papers, strap
 - `hideWhenSold`, which hides sold listings from the storefront when enabled
 
 For local development, if `ADMIN_PASSWORD` is not set, the admin API is open and writes directly to `data/watches.json`.
+Uploaded images are saved to `public/uploads`.
 
 ## Vercel + GitHub Setup
 
@@ -36,7 +37,7 @@ GITHUB_REPO=your-repo-name
 GITHUB_BRANCH=main
 ```
 
-On Vercel, the serverless admin API commits changes to `data/watches.json` in GitHub, then Vercel can redeploy from that commit. For immediate post-save refreshes, enable Vercel's automatic deployments on GitHub pushes.
+On Vercel, the serverless admin API commits listing changes to `data/watches.json` and image uploads to `public/uploads` in GitHub, then Vercel can redeploy from those commits. For immediate post-save refreshes, enable Vercel's automatic deployments on GitHub pushes.
 
 ## Inventory Notes
 

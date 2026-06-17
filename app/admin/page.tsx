@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { EyeOff, Plus, Save, Search, Trash2 } from "lucide-react";
+import { EyeOff, ImagePlus, Plus, Save, Search, Trash2, X } from "lucide-react";
 import type { WatchListing } from "@/types";
 
 const emptyListing: WatchListing = {
@@ -37,6 +37,7 @@ export default function AdminPage() {
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const selected = listings.find((watch) => watch.id === selectedId) ?? listings[0] ?? emptyListing;
 
@@ -124,6 +125,47 @@ export default function AdminPage() {
     const data = await response.json();
     setListings(data.listings);
     setMessage(`Saved to ${data.storage}.`);
+  }
+
+  async function uploadImages(files: FileList | null) {
+    if (!files?.length || !selected.id) return;
+
+    setUploading(true);
+    setMessage("");
+
+    try {
+      const uploadedPaths: string[] = [];
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("slug", selected.slug || selected.id);
+
+        const response = await fetch("/api/admin/uploads", {
+          method: "POST",
+          headers: secret ? { "x-admin-secret": secret } : {},
+          body: formData
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({ error: "Upload failed" }));
+          throw new Error(data.error ?? "Upload failed");
+        }
+
+        const data = await response.json();
+        uploadedPaths.push(data.path);
+      }
+
+      updateSelected({ ...selected, images: [...selected.images, ...uploadedPaths] });
+      setMessage(`${uploadedPaths.length} image${uploadedPaths.length === 1 ? "" : "s"} uploaded. Save changes to update the listing.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeImage(imagePath: string) {
+    updateSelected({ ...selected, images: selected.images.filter((image) => image !== imagePath) });
   }
 
   return (
@@ -221,10 +263,42 @@ export default function AdminPage() {
             Description
             <textarea rows={7} value={selected.description} onChange={(event) => updateSelected({ ...selected, description: event.target.value })} />
           </label>
-          <label>
-            Image URLs, one per line
-            <textarea rows={6} value={selected.images.join("\n")} onChange={(event) => updateSelected({ ...selected, images: event.target.value.split("\n").map((line) => line.trim()).filter(Boolean) })} />
-          </label>
+          <section className="image-editor" aria-label="Listing images">
+            <div className="image-editor-head">
+              <div>
+                <span>Images</span>
+                <p>Upload JPG, PNG, or WebP files.</p>
+              </div>
+              <label className="upload-button">
+                <ImagePlus size={18} />
+                {uploading ? "Uploading..." : "Upload"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  disabled={uploading}
+                  onChange={(event) => {
+                    uploadImages(event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            {selected.images.length ? (
+              <div className="image-admin-grid">
+                {selected.images.map((image) => (
+                  <div className="image-admin-card" key={image}>
+                    <img src={image} alt="" />
+                    <button type="button" className="icon-button danger" onClick={() => removeImage(image)} aria-label="Remove image" title="Remove image">
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">No images uploaded.</p>
+            )}
+          </section>
 
           <div className="form-grid">
             {[
